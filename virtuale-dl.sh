@@ -20,7 +20,9 @@ show_help(){
     echo "Usage: $0 [-c COOKIES] [-i COURSE_IDS] [-d DIR]"
 }
 
-urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }
+urldecode() {
+    echo $1 | sed 's@+@ @g;s@%@\\x@g' | xargs -0 printf "%b"
+}
 
 ############### 
 # ENTRY POINT #
@@ -37,12 +39,12 @@ done
 shift $(($OPTIND - 1))
 
 if test -z "$COOKIES" || test -z "$COURSE_IDS";then
-    echo -e "\033[0;31mERR:\033[0m You have to set COOKIES and COURSE_IDS first"
+    echo "\033[0;31mERR:\033[0m You have to set COOKIES and COURSE_IDS first"
     exit
 fi
 
 if test -z "$DIR";then
-    echo -e "\033[0;33mWARN:\033[0m DIR not set, the current directory will be used"
+    echo "\033[0;33mWARN:\033[0m DIR not set, the current directory will be used"
     DIR="./"
 fi
 
