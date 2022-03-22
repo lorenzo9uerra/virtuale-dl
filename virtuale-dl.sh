@@ -7,17 +7,17 @@
 # MoodleSession=92837492834029384d;
 # _shibsession_6465666019283019283019287019238=_029984029384026383039384"
 COOKIES=""
-# id of the course
-ID_CORSI=""
+# id of the courses
+COURSE_IDS=""
 # directory where the script should store files
 DIR=""
 
 
 show_help(){
-    echo You can either pass COOKIES, ID_CORSI and DIR as options or you can
+    echo You can either pass COOKIES, COURSE_IDS and DIR as options or you can
     echo set them editing the script.
     echo
-    echo "Usage: $0 [-c COOKIES] [-i ID_CORSI] [-d DIR]"
+    echo "Usage: $0 [-c COOKIES] [-i COURSE_IDS] [-d DIR]"
 }
 
 urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }
@@ -30,14 +30,14 @@ while getopts ":hc:i:d:" opt; do
 	case $opt in
 		"h") show_help; exit;;
         "c") COOKIES="$OPTARG";;
-		"i") ID_CORSI=$OPTARG;;
+		"i") COURSE_IDS=$OPTARG;;
 		"d") DIR="$OPTARG";;
 	esac
 done
 shift $(($OPTIND - 1))
 
-if test -z "$COOKIES" || test -z $ID_CORSI;then
-    echo -e "\033[0;31mERR:\033[0m You have to set COOKIES and ID_CORSI first"
+if test -z "$COOKIES" || test -z "$COURSE_IDS";then
+    echo -e "\033[0;31mERR:\033[0m You have to set COOKIES and COURSE_IDS first"
     exit
 fi
 
@@ -46,10 +46,11 @@ if test -z $DIR;then
     DIR="./"
 fi
 
-for ID in $ID_CORSI; do
-    URL_CORSO='https://virtuale.unibo.it/course/view.php?id='$ID
-    mkdir -p "$DIR/$ID"
-    PAGE=`curl -sS -H "$COOKIES" "$URL_CORSO"`
+for ID in $COURSE_IDS; do
+    COURSE_URL='https://virtuale.unibo.it/course/view.php?id='$ID
+    PAGE=`curl -sS -H "$COOKIES" "$COURSE_URL"`
+    COURSE_NAME=$(echo "$PAGE" | grep -oP '(?<=<title>Corso: )(.*?)(?=<\/title>)')
+    mkdir -p "$DIR/$COURSE_NAME"
     # get resources/unibores
     echo "$PAGE" | grep -oE 'https://virtuale.unibo.it/mod/(unibores|resource)[^"]+' | \
     while read link; do
@@ -57,7 +58,7 @@ for ID in $ID_CORSI; do
         encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
         filename=$(urldecode "$encoded")
         # with -nc wget doesn't download existing files, with -P specifies the download directory
-        wget -nc --header="$COOKIES" -P "$DIR/$ID" "$file_url" 2>/dev/null && echo "Downloaded $filename" & 
+        wget -nc --header="$COOKIES" -P "$DIR/$COURSE_NAME" "$file_url" 2>/dev/null && echo "Downloaded $filename" & 
         wait $!
     done
     # get folders
@@ -66,13 +67,13 @@ for ID in $ID_CORSI; do
             encoded="$(curl -sS -H "$COOKIES" "$link" | grep -oP '(?<=<h2>)(.*?)(?=<\/h2>)' | cut -d'>' -f2)"
             fold_name=$(urldecode "$encoded")
             # create the folder
-            mkdir -p "$DIR/$ID/${fold_name}"
+            mkdir -p "$DIR/$COURSE_NAME/${fold_name}"
             # get files inside the folder
             curl -sS -H "$COOKIES" "$link" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_folder/[^"\?]+' |\
                 while read file_url <&4; do
                     encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
                     filename=$(urldecode "$encoded")
-                    wget -nc --header="$COOKIES" -P "$DIR/$ID/${fold_name}" "$file_url" 2>/dev/null && echo "Downloaded $filename" &
+                    wget -nc --header="$COOKIES" -P "$DIR/$COURSE_NAME/${fold_name}" "$file_url" 2>/dev/null && echo "Downloaded $filename" &
                     wait $!
                 done 4<&0
         done
