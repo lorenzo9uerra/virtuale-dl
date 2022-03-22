@@ -39,12 +39,12 @@ done
 shift $(($OPTIND - 1))
 
 if test -z "$COOKIES" || test -z "$COURSE_IDS";then
-    echo "\033[0;31mERR:\033[0m You have to set COOKIES and COURSE_IDS first"
+    echo "ERR: You have to set COOKIES and COURSE_IDS first"
     exit
 fi
 
 if test -z "$DIR";then
-    echo "\033[0;33mWARN:\033[0m DIR not set, the current directory will be used"
+    echo "WARN: DIR not set, the current directory will be used"
     DIR="./"
 fi
 
