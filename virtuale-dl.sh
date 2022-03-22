@@ -27,12 +27,12 @@ urldecode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }
 ###############
 
 while getopts ":hc:i:d:" opt; do
-	case $opt in
-		"h") show_help; exit;;
+    case $opt in
+        "h") show_help; exit;;
         "c") COOKIES="$OPTARG";;
-		"i") COURSE_IDS=$OPTARG;;
-		"d") DIR="$OPTARG";;
-	esac
+        "i") COURSE_IDS=$OPTARG;;
+        "d") DIR="$OPTARG";;
+    esac
 done
 shift $(($OPTIND - 1))
 
@@ -41,7 +41,7 @@ if test -z "$COOKIES" || test -z "$COURSE_IDS";then
     exit
 fi
 
-if test -z $DIR;then
+if test -z "$DIR";then
     echo -e "\033[0;33mWARN:\033[0m DIR not set, the current directory will be used"
     DIR="./"
 fi
