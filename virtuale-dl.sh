@@ -7,9 +7,11 @@
 # MoodleSession=92837492834029384d;
 # _shibsession_6465666019283019283019287019238=_029984029384026383039384"
 COOKIES=""
-# id of the courses
+# one or more IDs of the courses you want to download files from, you can get
+# them from the url of the course, for example
+# https://virtuale.unibo.it/course/view.php?id=112233
 COURSE_IDS=""
-# directory where the script should store files
+# path where the script should store the directories
 DIR=""
 
 
@@ -32,7 +34,7 @@ while getopts ":hc:i:d:" opt; do
     case $opt in
         "h") show_help; exit;;
         "c") COOKIES="$OPTARG";;
-        "i") COURSE_IDS=$OPTARG;;
+        "i") COURSE_IDS="$OPTARG";;
         "d") DIR="$OPTARG";;
     esac
 done
