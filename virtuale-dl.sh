@@ -23,7 +23,7 @@ show_help(){
 }
 
 urldecode() {
-    echo $1 | sed 's@+@ @g;s@%@\\x@g' | xargs -0 printf "%b"
+    echo $1 | awk -niord '{printf RT?$0chr("0x"substr(RT,2)):$0}' RS=%..
 }
 
 ############### 
@@ -74,11 +74,11 @@ for ID in $COURSE_IDS; do
             mkdir -p "$DIR/$COURSE_NAME/${fold_name}"
             # get files inside the folder
             curl -sS -H "$COOKIES" "$link" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_folder/[^"\?]+' |\
-                while read file_url <&4; do
+                while read file_url; do
                     encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
                     filename=$(urldecode "$encoded")
                     wget -nc --header="$COOKIES" -P "$DIR/$COURSE_NAME/${fold_name}" "$file_url" 2>/dev/null && echo "Downloaded $filename" &
                     wait $!
-                done 4<&0
+                done
         done
 done
