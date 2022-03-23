@@ -56,7 +56,7 @@ for ID in $COURSE_IDS; do
     COURSE_NAME=$(echo "$PAGE" | grep -oP '(?<=<title>Corso: )(.*?)(?=<\/title>)')
     mkdir -p "$DIR/$COURSE_NAME"
     # get resources/unibores
-    echo "$PAGE" | grep -oE 'https://virtuale.unibo.it/mod/(unibores|resource)[^"]+' | \
+    echo "$PAGE" | grep -oE 'https://virtuale.unibo.it/mod/(unibores|resource)[^"]+' |
     while read link; do
         file_url="$(curl "$link" -sS -H "$COOKIES" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_(unibores|resource)/[^\?"]+' | sed 's/http:/https:/g')"
         encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
@@ -66,14 +66,14 @@ for ID in $COURSE_IDS; do
         wait $!
     done
     # get folders
-    echo "$PAGE" | grep -oE 'https://virtuale.unibo.it/mod/folder[^"]+' | \
+    echo "$PAGE" | grep -oE 'https://virtuale.unibo.it/mod/folder[^"]+' |
         while read link; do
             encoded="$(curl -sS -H "$COOKIES" "$link" | grep -oP '(?<=<h2>)(.*?)(?=<\/h2>)' | cut -d'>' -f2)"
             fold_name=$(urldecode "$encoded")
             # create the folder
             mkdir -p "$DIR/$COURSE_NAME/${fold_name}"
             # get files inside the folder
-            curl -sS -H "$COOKIES" "$link" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_folder/[^"\?]+' |\
+            curl -sS -H "$COOKIES" "$link" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_folder/[^"\?]+' |
                 while read file_url; do
                     encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
                     filename=$(urldecode "$encoded")
