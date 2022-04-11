@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # You can get that part of the header by copying the request for curl from the
 # browser and then getting the COOKIES part of the header to paste here
@@ -23,7 +23,7 @@ show_help(){
 }
 
 urldecode() {
-    echo $1 | awk -niord '{printf RT?$0chr("0x"substr(RT,2)):$0}' RS=%..
+    print "%b\n" "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')";
 }
 
 ############### 
@@ -60,7 +60,7 @@ for ID in $COURSE_IDS; do
     while read link; do
         file_url="$(curl "$link" -sS -H "$COOKIES" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_(unibores|resource)/[^\?"]+' | sed 's/http:/https:/g')"
         encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
-        filename=$(urldecode "$encoded")
+        filename=$(echo "$encoded" | urldecode)
         # with -nc wget doesn't download existing files, with -P specifies the download directory
         wget -nc --header="$COOKIES" -P "$DIR/$COURSE_NAME" "$file_url" 2>/dev/null && echo "Downloaded $filename" & 
         wait $!
@@ -76,7 +76,7 @@ for ID in $COURSE_IDS; do
             curl -sS -H "$COOKIES" "$link" | grep -oE 'https://virtuale.unibo.it/pluginfile.php/[0-9]{6,8}/mod_folder/[^"\?]+' |
                 while read file_url; do
                     encoded="$(echo $file_url | rev | cut -d/ -f1 | rev )"
-                    filename=$(urldecode "$encoded")
+                    filename=$(echo "$encoded" | urldecode)
                     wget -nc --header="$COOKIES" -P "$DIR/$COURSE_NAME/${fold_name}" "$file_url" 2>/dev/null && echo "Downloaded $filename" &
                     wait $!
                 done
