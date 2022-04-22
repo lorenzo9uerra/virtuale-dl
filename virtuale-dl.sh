@@ -23,7 +23,7 @@ show_help(){
 }
 
 urldecode() {
-    print "%b\n" "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')";
+    printf "%b\n" "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')";
 }
 
 ############### 
