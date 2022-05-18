@@ -69,7 +69,7 @@ for ID in $COURSE_IDS; do
     echo "$PAGE" | grep -oE 'https://virtuale.unibo.it/mod/folder[^"]+' |
         while read link; do
             encoded="$(curl -sS -H "$COOKIES" "$link" | grep -oP '(?<=<h2>)(.*?)(?=<\/h2>)' | cut -d'>' -f2)"
-            fold_name=$(urldecode "$encoded")
+            fold_name=$(echo "$encoded" | urldecode)
             # create the folder
             mkdir -p "$DIR/$COURSE_NAME/${fold_name}"
             # get files inside the folder
